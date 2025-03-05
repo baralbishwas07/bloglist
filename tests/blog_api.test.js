@@ -73,6 +73,24 @@ test('a valid blog can be added', async () => {
   assert(titles.includes('React Hooks'))
 })
 
+test('if likes is missing it will default to 0', async () => {
+  const blogWithoutLike = {
+    title: 'Artificial Intelligence',
+    author: 'Elon Musk',
+    url: 'https://x.com/ai-elonmusk',
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(blogWithoutLike)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blog = response.body
+
+  assert.strictEqual(blog.likes, 0)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

@@ -91,6 +91,44 @@ test('if likes is missing it will default to 0', async () => {
   assert.strictEqual(blog.likes, 0)
 })
 
+test('blogs without title responds with 400', async () => {
+  const blogWithoutTitle = {
+    author: 'Albert Einstein',
+    url: 'https://google.com/relativity',
+    likes: 999,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(blogWithoutTitle)
+    .expect(400)
+})
+
+test('blogs without url respond with 400', async () => {
+  const blogWithoutUrl = {
+    title: 'Theory of Relativity',
+    author: 'Albert Einstein',
+    likes: 999,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(blogWithoutUrl)
+    .expect(400)
+})
+
+test('blogs without title and url respond with 400', async () => {
+  const blogWithoutTitleAndUrl = {
+    author: 'Albert Einstein',
+    likes: 999,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(blogWithoutTitleAndUrl)
+    .expect(400)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

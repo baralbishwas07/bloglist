@@ -51,6 +51,28 @@ test('unique identifier property is named id not as default _id', async () => {
   assert.strictEqual(blog.hasOwnProperty('_id'), false)
 })
 
+test('a valid blog can be added', async () => {
+  const newBlog = {
+    title: 'React Hooks',
+    author: 'Jackie Chan',
+    url: 'https://reacthooks.com/',
+    likes: 9,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+  const titles = response.body.map(r => r.title)
+
+  assert.strictEqual(response.body.length, initialBlogs.length + 1)
+
+  assert(titles.includes('React Hooks'))
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

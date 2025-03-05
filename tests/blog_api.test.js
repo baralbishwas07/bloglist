@@ -42,6 +42,15 @@ test('returns the correct amount of blog posts', async () => {
   assert.strictEqual(response.body.length, 2)
 })
 
+test('unique identifier property is named id not as default _id', async () => {
+  const response = await api.get('/api/blogs')
+  const blog = response.body[0]
+  // eslint-disable-next-line no-prototype-builtins
+  assert.strictEqual(blog.hasOwnProperty('id'), true)
+  // eslint-disable-next-line no-prototype-builtins
+  assert.strictEqual(blog.hasOwnProperty('_id'), false)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

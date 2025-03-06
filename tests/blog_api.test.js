@@ -146,6 +146,43 @@ describe('when there are some blogs initially', () => {
       assert(!titles.includes(blogToDelete.title))
     })
   })
+
+  describe('updating a specific blog', () => {
+    test('succeed with valid data', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdate = blogsAtStart[0]
+      const newBlog = {
+        title: 'Go To Statement Considered Harmful',
+        author: 'Edsger W. Dijkstra',
+        url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+        likes: 11,
+      }
+
+      const updatedBlog = await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(newBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(updatedBlog.body.likes, 11)
+    })
+
+    test('if id is invalid returns 400', async () => {
+      const invalidId = '12345'
+
+      await api
+        .put(`/api/blogs/${invalidId}`)
+        .expect(400)
+    })
+
+    test('if non existing id returns 400', async () => {
+      const nonExistingId = await helper.nonExistingId()
+
+      await api
+        .put(`/api/blogs/${nonExistingId}`)
+        .expect(400)
+    })
+  })
 })
 
 

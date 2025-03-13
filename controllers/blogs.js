@@ -1,32 +1,20 @@
-const jwt = require('jsonwebtoken')
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const middleware = require('../utils/middleware')
 const mongoose = require('mongoose')
-const User = require('../models/user')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const { title, author, url, likes } = request.body
-
-  if(!request.token) {
-    return response.status(401).json({ error: 'Token missing' })
-  }
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-  if(!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
+  const user = request.user
 
   if (!title || !url) {
-    return response.status(400).end()
+    return response.status(400).json({ error: 'Title and URL are required' })
   }
-
-  const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title: title,
@@ -43,23 +31,18 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id',middleware.userExtractor, async (request, response) => {
   const blog = await Blog.findById(request.params.id)
   if(!blog){
     return response.status(404).json({ error: 'Blog not found' })
   }
 
-  if(!request.token) {
-    return response.status(401).json({ error: 'Token missing' })
-  }
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if(blog.user.toString() === decodedToken.id.toString()) {
-    await Blog.deleteOne({ _id: blog._id })
-    return response.status(204).end()
-  } else {
+  if (blog.user.toString() !== request.user._id.toString()) {
     return response.status(401).json({ error: 'User not authorized' })
   }
+
+  await Blog.deleteOne({ _id: blog._id })
+  response.status(204).end()
 })
 
 blogsRouter.put('/:id', async (request, response) => {

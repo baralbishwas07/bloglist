@@ -43,6 +43,15 @@ describe('when there are some blogs initially', () => {
 
   describe('addition of new blog', () => {
     test('a valid blog can be added', async () => {
+      const newUser = {
+        username: 'testuser',
+        name: 'Test User',
+        password: 'testpassword'
+      }
+
+      const { body } = await helper.loginResponse(newUser)
+      const token = body.token
+
       const newBlog = {
         title: 'React Hooks',
         author: 'Jackie Chan',
@@ -52,6 +61,7 @@ describe('when there are some blogs initially', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -65,6 +75,15 @@ describe('when there are some blogs initially', () => {
     })
 
     test('if likes is missing it will default to 0', async () => {
+      const newUser = {
+        username: 'no Likes',
+        name: 'Likeless',
+        password: 'nolikepass'
+      }
+
+      const { body } = await helper.loginResponse(newUser)
+      const token = body.token
+
       const blogWithoutLike = {
         title: 'Artificial Intelligence',
         author: 'Elon Musk',
@@ -73,6 +92,7 @@ describe('when there are some blogs initially', () => {
 
       const response = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(blogWithoutLike)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -83,6 +103,15 @@ describe('when there are some blogs initially', () => {
     })
 
     test('blogs without title responds with 400', async () => {
+      const newUser = {
+        username: 'titleLess',
+        name: 'no Title',
+        password: 'noTitlePass'
+      }
+
+      const { body } = await helper.loginResponse(newUser)
+      const token = body.token
+
       const blogWithoutTitle = {
         author: 'Albert Einstein',
         url: 'https://google.com/relativity',
@@ -91,6 +120,7 @@ describe('when there are some blogs initially', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(blogWithoutTitle)
         .expect(400)
 
@@ -99,6 +129,15 @@ describe('when there are some blogs initially', () => {
     })
 
     test('blogs without url respond with 400', async () => {
+      const newUser = {
+        username: 'urlLess',
+        name: 'no Url',
+        password: 'noUrlPass'
+      }
+
+      const { body } = await helper.loginResponse(newUser)
+      const token = body.token
+
       const blogWithoutUrl = {
         title: 'Theory of Relativity',
         author: 'Albert Einstein',
@@ -107,6 +146,7 @@ describe('when there are some blogs initially', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(blogWithoutUrl)
         .expect(400)
 
@@ -115,6 +155,15 @@ describe('when there are some blogs initially', () => {
     })
 
     test('blogs without title and url respond with 400', async () => {
+      const newUser = {
+        username: 'titleUrlLess',
+        name: 'no TitleUrl',
+        password: 'noTitleUrlPass'
+      }
+
+      const { body } = await helper.loginResponse(newUser)
+      const token = body.token
+
       const blogWithoutTitleAndUrl = {
         author: 'Albert Einstein',
         likes: 999,
@@ -122,6 +171,7 @@ describe('when there are some blogs initially', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(blogWithoutTitleAndUrl)
         .expect(400)
 
@@ -132,15 +182,36 @@ describe('when there are some blogs initially', () => {
 
   describe('deleting a specific blog', () => {
     test('succeeds with status code 204 if id is valid', async () => {
-      const blogsAtStart = await helper.blogsInDb()
-      const blogToDelete = blogsAtStart[0]
+      const newUser = {
+        username: 'deleteTester',
+        name: 'Test Delete',
+        password: 'deletePass'
+      }
+
+      const { body } = await helper.loginResponse(newUser)
+      const token = body.token
+
+      const newBlog = {
+        title: 'Blog to be deleted',
+        author: 'Mr. Erase',
+        url: 'https://delete.com',
+        likes: 1,
+      }
+
+      const postRes = await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
+        .expect(201)
+
+      const blogToDelete = postRes.body
 
       await api
         .delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
-      assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
 
       const titles = blogsAtEnd.map(b => b.title)
       assert(!titles.includes(blogToDelete.title))

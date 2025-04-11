@@ -1,5 +1,9 @@
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const app = require('../app')
+const supertest = require('supertest')
+
+const api = supertest(app)
 
 const initialBlogs = [
   {
@@ -29,6 +33,20 @@ const initialUsers = [
   }
 ]
 
+const loginResponse = async (newUser) => {
+
+  await api
+    .post('/api/users')
+    .send(newUser)
+
+  return await api
+    .post('/api/login')
+    .send({
+      username: newUser.username,
+      password: newUser.password
+    })
+}
+
 const nonExistingId = async () => {
   const blog = new Blog({
     title: 'Is web development dead?',
@@ -55,6 +73,7 @@ const usersInDb = async () => {
 module.exports = {
   initialBlogs,
   initialUsers,
+  loginResponse,
   nonExistingId,
   blogsInDb,
   usersInDb

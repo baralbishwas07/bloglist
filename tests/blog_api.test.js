@@ -257,10 +257,10 @@ describe('when there are some blogs initially', () => {
 
   describe('mostBlogs', () => {
     const blogs = [
-      { title: 'Blog 1', author: 'Robert C. Martin', likes: 5 },
-      { title: 'Blog 2', author: 'Edsger W. Dijkstra', likes: 10 },
-      { title: 'Blog 3', author: 'Robert C. Martin', likes: 15 },
-      { title: 'Blog 4', author: 'Robert C. Martin', likes: 20 }
+      { title: 'Blog 1', author: 'Robert C. Martin', url: 'http://blog1.com', likes: 5 },
+      { title: 'Blog 2', author: 'Edsger W. Dijkstra', url: 'http://blog2.com', likes: 10 },
+      { title: 'Blog 3', author: 'Robert C. Martin', url: 'http://blog3.com', likes: 15 },
+      { title: 'Blog 4', author: 'Robert C. Martin', url: 'http://blog4.com', likes: 20 }
     ]
 
     test('should return the author with the most blogs', () => {
@@ -271,6 +271,32 @@ describe('when there are some blogs initially', () => {
     test('should return null for an empty list', () => {
       const result = helper.mostBlogs([])
       assert.strictEqual(result, null)
+    })
+  })
+
+  describe('mostLikes', () => {
+    const blogs = [
+      { title: 'Blog 1', author: 'Robert C. Martin', url: 'http://blog1.com', likes: 5 },
+      { title: 'Blog 2', author: 'Edsger W. Dijkstra', url: 'http://blog2.com', likes: 10 },
+      { title: 'Blog 3', author: 'Robert C. Martin', url: 'http://blog3.com', likes: 15 },
+      { title: 'Blog 4', author: 'Robert C. Martin', url: 'http://blog4.com', likes: 20 }
+    ]
+
+    test('should return the author with the most total likes', () => {
+      const result = helper.mostLikes(blogs)
+      assert.deepStrictEqual(result, { author: 'Robert C. Martin', likes: 40 })
+    })
+
+    test('should return null for an empty list', () => {
+      const result = helper.mostLikes([])
+      assert.strictEqual(result, null)
+    })
+
+    test('should return correct result for a single blog', () => {
+      const result = helper.mostLikes([
+        { title: 'Solo', author: 'Single Author', url: 'http://solo.com', likes: 7 }
+      ])
+      assert.deepStrictEqual(result, { author: 'Single Author', likes: 7 })
     })
   })
 })

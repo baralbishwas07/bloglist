@@ -69,6 +69,22 @@ const mostBlogs = (blogs) => {
   return _.maxBy(authorBlogCount, 'blogs')
 }
 
+const mostLikes = (blogs) => {
+  if(blogs.length === 0){
+    return null
+  }
+
+  const groupByAuthor = _.groupBy(blogs, 'author')
+
+  const authorLikesCount = _.map(groupByAuthor, (blogs, author) => ({
+    author,
+    likes: _.sumBy(blogs, 'likes')
+  }))
+
+  return _.maxBy(authorLikesCount, 'likes')
+}
+
+
 const nonExistingId = async () => {
   const blog = new Blog({
     title: 'Is web development dead?',
@@ -97,6 +113,7 @@ module.exports = {
   initialUsers,
   loginResponse,
   mostBlogs,
+  mostLikes,
   nonExistingId,
   blogsInDb,
   usersInDb

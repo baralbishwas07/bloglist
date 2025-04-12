@@ -2,6 +2,7 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const app = require('../app')
 const supertest = require('supertest')
+const _ = require('lodash')
 
 const api = supertest(app)
 
@@ -17,6 +18,12 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
+  },
+  {
+    title: 'React Course',
+    author: 'Michael Chan',
+    url: 'https://reactpattern.com/',
+    likes: 70,
   }
 ]
 
@@ -47,6 +54,21 @@ const loginResponse = async (newUser) => {
     })
 }
 
+const mostBlogs = (blogs) => {
+  if(blogs.length === 0){
+    return null
+  }
+
+  const groupByAuthor = _.groupBy(blogs, 'author')
+
+  const authorBlogCount = _.map(groupByAuthor, (blogs, author) => ({
+    author,
+    blogs: blogs.length
+  }))
+
+  return _.maxBy(authorBlogCount, 'blogs')
+}
+
 const nonExistingId = async () => {
   const blog = new Blog({
     title: 'Is web development dead?',
@@ -74,6 +96,7 @@ module.exports = {
   initialBlogs,
   initialUsers,
   loginResponse,
+  mostBlogs,
   nonExistingId,
   blogsInDb,
   usersInDb

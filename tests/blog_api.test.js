@@ -254,6 +254,25 @@ describe('when there are some blogs initially', () => {
         .expect(400)
     })
   })
+
+  describe('mostBlogs', () => {
+    const blogs = [
+      { title: 'Blog 1', author: 'Robert C. Martin', likes: 5 },
+      { title: 'Blog 2', author: 'Edsger W. Dijkstra', likes: 10 },
+      { title: 'Blog 3', author: 'Robert C. Martin', likes: 15 },
+      { title: 'Blog 4', author: 'Robert C. Martin', likes: 20 }
+    ]
+
+    test('should return the author with the most blogs', () => {
+      const result = helper.mostBlogs(blogs)
+      assert.deepStrictEqual(result, { author: 'Robert C. Martin', blogs: 3 })
+    })
+
+    test('should return null for an empty list', () => {
+      const result = helper.mostBlogs([])
+      assert.strictEqual(result, null)
+    })
+  })
 })
 
 
